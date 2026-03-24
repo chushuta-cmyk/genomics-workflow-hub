@@ -1,0 +1,71 @@
+name: omics_agent
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  # Python core
+  - python=3.10
+  - pip
+  - ipykernel
+  - jupyterlab
+
+  # Data / stats
+  - pandas
+  - numpy
+  - scipy
+  - statsmodels
+  - scikit-learn
+  - joblib
+  - patsy
+  - tqdm
+
+  # I/O
+  - openpyxl
+  - xlrd
+  - xlsxwriter
+  - pyarrow
+
+  # Plotting
+  - matplotlib
+  - seaborn
+
+  # Single-cell (prefer conda)
+  - scanpy
+  - anndata
+  - umap-learn
+  - pynndescent
+
+  # R base
+  - r-base=4.3
+  - r-essentials
+
+  # R tidyverse + plotting
+  - r-tidyverse
+  - r-data.table
+  - r-ggplot2
+  - r-patchwork
+  - r-ggrepel
+  - r-ggpubr
+
+  # R bio/omics essentials (Bioconductor)
+  - bioconductor-limma
+  - bioconductor-edger
+  - bioconductor-deseq2
+  - bioconductor-complexheatmap
+  - bioconductor-clusterprofiler
+  - bioconductor-org.hs.eg.db
+  - bioconductor-annotationdbi
+
+  # Survival / ML in R
+  - r-survival
+  - r-survminer
+  - r-randomforest
+
+  # Optional but useful
+  - r-readxl
+  - r-writexl
+
+  # Pip extras (keep minimal)
+  - pip:
+      - openpyxl>=3.1

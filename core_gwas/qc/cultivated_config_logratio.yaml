@@ -1,0 +1,174 @@
+# Configuration for cultivated soybean GWAS post-analysis with log ratio
+
+dataset:
+  type: "cultivated"
+  name: "cultivated_soybean"
+  description: "Cultivated soybean multi-trait GWAS analysis"
+  
+  # Population information (optional)
+  population:
+    code: "CULT_SOY"
+    sample_size: 378
+    ancestry: "Cultivated"
+  
+  # File paths
+  gwas_files:
+    size: "data/input/workflow/output/size_analysis.assoc.txt"
+    protein: "data/input/workflow/output/protein_analysis.assoc.txt"
+    oil: "data/input/workflow/output/oil_analysis.assoc.txt"
+    log_ratio: "data/input/workflow/output/ratio_gwas.assoc.txt"
+
+traits:
+  # Trait names corresponding to GWAS files
+  names: ["size", "protein", "oil", "log_ratio"]
+  
+  # Trait metadata (optional)
+  metadata:
+    size:
+      full_name: "100-seed weight"
+      unit: "g"
+      transformation: "raw"
+    protein:
+      full_name: "Protein content"
+      unit: "%"
+      transformation: "raw"
+    oil:
+      full_name: "Oil content"
+      unit: "%"
+      transformation: "raw"
+    log_ratio:
+      full_name: "Log(Oil/Protein) ratio"
+      unit: "log ratio"
+      transformation: "log"
+
+analysis:
+  # Significance threshold
+  p_threshold: 5e-8
+  
+  # Allele frequency filter
+  min_af: 0.01
+  
+  # Locus merging parameters
+  locus:
+    window: 250000  # Window size in base pairs (±window)
+    p_column: "p_wald_size"  # Column to use for lead SNP selection
+  
+  # Colocalization parameters
+  coloc:
+    pp4_threshold: 0.8  # PP4 threshold for declaring colocalization
+    priors:
+      p1: 1e-4   # Prior probability of SNP associated with trait 1
+      p2: 1e-4   # Prior probability of SNP associated with trait 2
+      p12: 1e-5  # Prior probability of SNP associated with both traits
+    
+    # Trait pairs to test (automatically generated if empty)
+    trait_pairs: []
+
+output:
+  # Output directory structure
+  directories:
+    base: "docs/SNP_analyze_cultivated"
+    analysis_index: "analysis_index"
+    snp_analyze: "SNP_analyze"
+    logs: "logs"
+    scripts: "scripts"
+  
+  # File naming conventions
+  files:
+    gwas_index: "gwas_files.txt"
+    extracted_prefix: "gwas_"
+    significant_prefix: "sig_"
+    cross_trait: "cross_trait_effect.tsv"
+    locus_summary: "locus_summary.tsv"
+    coloc_results: "coloc_results.tsv"
+    analysis_summary: "analysis_summary.md"
+  
+  # Output formats
+  formats: ["tsv", "md", "log"]
+  
+  # Compression
+  compress_large_files: true
+  
+  # Cleanup options
+  cleanup:
+    keep_intermediate: true
+    keep_logs: true
+
+pipeline:
+  # Steps to execute (set to false to skip)
+  steps:
+    index_gwas_files: true
+    extract_gwas_tables: true
+    extract_significant_snps: true
+    cross_trait_effects: true
+    merge_loci: true
+    run_coloc: true
+    generate_summary: true
+  
+  # Execution mode
+  execution:
+    mode: "sequential"  # "sequential" or "parallel"
+    max_workers: 4      # For parallel execution
+    chunk_size: 10000   # For large file processing
+  
+  # Validation and error handling
+  validation:
+    check_input_files: true
+    validate_columns: true
+    check_output_integrity: true
+  
+  error_handling:
+    continue_on_error: false
+    log_errors: true
+    save_checkpoints: true
+
+software:
+  # Software dependencies and versions
+  python:
+    version: ">=3.8"
+    packages:
+      - "pandas>=1.3.0"
+      - "numpy>=1.21.0"
+      - "pyyaml>=6.0"
+  
+  r:
+    version: ">=4.0.0"
+    packages:
+      - "coloc"
+      - "dplyr"
+      - "data.table"
+  
+  # External tools
+  external:
+    plink: "2.0"
+    gemma: "0.98.3"
+
+logging:
+  # Logging configuration
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  
+  # Log file locations
+  files:
+    main: "logs/pipeline.log"
+    step_index: "logs/step1_index.log"
+    step_extract: "logs/step2_extract.log"
+    step_significant: "logs/step3_significant.log"
+    step_cross_trait: "logs/step4_cross_trait.log"
+    step_loci: "logs/step5_loci.log"
+    step_coloc: "logs/step6_coloc.log"
+    step_summary: "logs/step7_summary.log"
+
+metadata:
+  # Analysis metadata
+  analysis_date: "2025-03-07"
+  pipeline_version: "1.0"
+  analyst: "Bioinformatics Team"
+  project: "Cultivated Soybean GWAS Post-Analysis"
+  
+  # References
+  references:
+    - "GWAS significance threshold: p < 5e-8 (genome-wide)"
+    - "Locus definition: ±250kb window (WTCCC standard)"
+    - "Colocalization: Giambartolomei et al. 2014, PLoS Genet"
+    - "eCAVIAR: Hormozdiari et al. 2016, Am J Hum Genet"

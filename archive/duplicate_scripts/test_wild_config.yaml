@@ -1,0 +1,60 @@
+# Test configuration for wild soybean GWAS analysis
+
+dataset:
+  type: "wild"
+  name: "wild_soybean_test"
+  
+  gwas_files:
+    size: "/data03/karama/soybean_gwas_filtered/workflow/output/size_analysis.assoc.txt"
+    protein: "/data03/karama/soybean_gwas_filtered/workflow/output/protein_analysis.assoc.txt"
+    oil: "/data03/karama/soybean_gwas_filtered/workflow/output/oil_analysis.assoc.txt"
+
+traits:
+  names: ["size", "protein", "oil"]
+
+analysis:
+  p_threshold: 5e-8
+  min_af: 0.01
+  
+  locus:
+    window: 250000
+    p_column: "p_wald_size"
+  
+  coloc:
+    pp4_threshold: 0.8
+    priors:
+      p1: 1e-4
+      p2: 1e-4
+      p12: 1e-5
+
+output:
+  directories:
+    base: "./test_results_wild"
+    analysis_index: "analysis_index"
+    snp_analyze: "SNP_analyze"
+    logs: "logs"
+    scripts: "scripts"
+  
+  files:
+    gwas_index: "gwas_files.txt"
+    extracted_prefix: "gwas_"
+    significant_prefix: "sig_"
+    cross_trait: "cross_trait_effect.tsv"
+    locus_summary: "locus_summary.tsv"
+    coloc_results: "coloc_results.tsv"
+    analysis_summary: "analysis_summary.md"
+
+pipeline:
+  steps:
+    index_gwas_files: true
+    extract_gwas_tables: true
+    extract_significant_snps: true
+    cross_trait_effects: true
+    merge_loci: true
+    run_coloc: true
+    generate_summary: true
+
+metadata:
+  analysis_date: "2025-03-06"
+  pipeline_version: "1.0"
+  project: "Wild Soybean GWAS Post-Analysis Test"

@@ -1,0 +1,206 @@
+# GWAS Post-Analysis Pipeline Configuration Template
+# Copy this file to config_analysis.yaml and modify parameters for your analysis
+
+dataset:
+  # Dataset type: "wild", "cultivated", or "combined"
+  type: "wild"
+  name: "soybean_gwas"
+  description: "Wild soybean multi-trait GWAS analysis"
+  
+  # Population information (optional)
+  population:
+    code: "WILD_SOY"
+    sample_size: 121
+    ancestry: "East Asian"
+  
+  # File paths (update these for your analysis)
+  gwas_files:
+    size: "/path/to/size_analysis.assoc.txt"
+    protein: "/path/to/protein_analysis.assoc.txt"
+    oil: "/path/to/oil_analysis.assoc.txt"
+    # Add additional traits as needed:
+    # trait4: "/path/to/trait4_analysis.assoc.txt"
+  
+traits:
+  # Trait names corresponding to GWAS files
+  names: ["size", "protein", "oil"]
+  
+  # Trait metadata (optional)
+  metadata:
+    size:
+      full_name: "100-seed weight"
+      unit: "g"
+      transformation: "raw"
+    protein:
+      full_name: "Protein content"
+      unit: "%"
+      transformation: "raw"
+    oil:
+      full_name: "Oil content"
+      unit: "%"
+      transformation: "raw"
+
+analysis:
+  # Significance threshold
+  p_threshold: 5e-8
+  
+  # Allele frequency filter
+  min_af: 0.01
+  
+  # Locus merging parameters
+  locus:
+    window: 250000  # Window size in base pairs (±window)
+    p_column: "p_wald_size"  # Column to use for lead SNP selection
+  
+  # Colocalization parameters
+  coloc:
+    pp4_threshold: 0.8  # PP4 threshold for declaring colocalization
+    priors:
+      p1: 1e-4   # Prior probability of SNP associated with trait 1
+      p2: 1e-4   # Prior probability of SNP associated with trait 2
+      p12: 1e-5  # Prior probability of SNP associated with both traits
+    
+    # Trait pairs to test (automatically generated if empty)
+    trait_pairs: []
+    # Example manual specification:
+    # trait_pairs:
+    #   - ["oil", "protein"]
+    #   - ["oil", "size"]
+    #   - ["protein", "size"]
+
+output:
+  # Output directory structure
+  directories:
+    base: "./results"
+    analysis_index: "analysis_index"
+    snp_analyze: "SNP_analyze"
+    logs: "logs"
+    scripts: "scripts"
+  
+  # File naming conventions
+  files:
+    gwas_index: "gwas_files.txt"
+    extracted_prefix: "gwas_"
+    significant_prefix: "sig_"
+    cross_trait: "cross_trait_effect.tsv"
+    locus_summary: "locus_summary.tsv"
+    coloc_results: "coloc_results.tsv"
+    analysis_summary: "analysis_summary.md"
+  
+  # Output formats
+  formats: ["tsv", "md", "log"]
+  
+  # Compression
+  compress_large_files: true
+  
+  # Cleanup options
+  cleanup:
+    keep_intermediate: true
+    keep_logs: true
+
+pipeline:
+  # Steps to execute (set to false to skip)
+  steps:
+    index_gwas_files: true
+    extract_gwas_tables: true
+    extract_significant_snps: true
+    cross_trait_effects: true
+    merge_loci: true
+    run_coloc: true
+    generate_summary: true
+  
+  # Execution mode
+  execution:
+    mode: "sequential"  # "sequential" or "parallel"
+    max_workers: 4      # For parallel execution
+    chunk_size: 10000   # For large file processing
+  
+  # Validation and error handling
+  validation:
+    check_input_files: true
+    validate_columns: true
+    check_output_integrity: true
+  
+  error_handling:
+    continue_on_error: false
+    log_errors: true
+    save_checkpoints: true
+
+software:
+  # Software dependencies and versions
+  python:
+    version: ">=3.8"
+    packages:
+      - "pandas>=1.3.0"
+      - "numpy>=1.21.0"
+      - "pyyaml>=6.0"
+  
+  r:
+    version: ">=4.0.0"
+    packages:
+      - "coloc"
+      - "dplyr"
+      - "data.table"
+  
+  # External tools
+  external:
+    plink: "2.0"
+    gemma: "0.98.3"
+
+logging:
+  # Logging configuration
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  
+  # Log file locations
+  files:
+    main: "logs/pipeline.log"
+    step_index: "logs/step1_index.log"
+    step_extract: "logs/step2_extract.log"
+    step_significant: "logs/step3_significant.log"
+    step_cross_trait: "logs/step4_cross_trait.log"
+    step_loci: "logs/step5_loci.log"
+    step_coloc: "logs/step6_coloc.log"
+    step_summary: "logs/step7_summary.log"
+
+metadata:
+  # Analysis metadata
+  analysis_date: "2025-03-06"
+  pipeline_version: "1.0"
+  analyst: "Bioinformatics Team"
+  project: "Soybean GWAS Post-Analysis"
+  
+  # References
+  references:
+    - "GWAS significance threshold: p < 5e-8 (genome-wide)"
+    - "Locus definition: ±250kb window (WTCCC standard)"
+    - "Colocalization: Giambartolomei et al. 2014, PLoS Genet"
+    - "eCAVIAR: Hormozdiari et al. 2016, Am J Hum Genet"
+
+# Example configurations for different dataset types
+examples:
+  wild_soybean:
+    dataset_type: "wild"
+    traits: ["size", "protein", "oil", "ratio"]
+    sample_size: 121
+    population: "wild_accessions"
+  
+  cultivated_soybean:
+    dataset_type: "cultivated"
+    traits: ["yield", "protein", "oil", "maturity"]
+    sample_size: 378
+    population: "cultivated_accessions"
+  
+  combined:
+    dataset_type: "combined"
+    traits: ["size", "protein", "oil"]
+    sample_size: 499
+    population: "mixed"
+    covariates: ["population_structure"]
+
+# Notes:
+# 1. Update all file paths to match your data location
+# 2. Modify trait names and metadata according to your study
+# 3. Adjust analysis parameters based on your research questions
+# 4. For large datasets, consider increasing chunk_size or using parallel execution
+# 5. Validate configuration before running: python validate_config.py config_analysis.yaml
